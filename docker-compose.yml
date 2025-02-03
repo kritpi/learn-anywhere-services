@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  api:
+    container_name: learn_anywhere
+    ports:
+      - "${API_PORT}:${API_PORT}"
+    build: 
+      context: ./
+      dockerfile: Dockerfile
+    environment:
+      - PORT=${API_PORT}
+      - DATABASE_URL=${DATABASE_URL}
+    volumes:
+      - ./:/app
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+      - minio
+      - mongo
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    restart: always
+    ports:
+      - "${DB_PORT}:5432"
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file:
+      - .env
+
+  minio:
+    image: minio/minio:latest
+    container_name: minio-S3
+    restart: always
+    ports:
+      - "${MINIO_PORT}:9000"
+      - "${MINIO_CONSOLE_PORT}:9001"
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+    command: server /data --console-address ":${MINIO_CONSOLE_PORT}"
+    volumes:
+      - minio_data:/data
+    env_file:
+      - .env
+
+  mongo:
+    image: mongo:latest
+    container_name: mongo-db
+    restart: always
+    ports:
+      - "${MONGO_PORT}:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
+      - MONGO_INITDB_DATABASE=${MONGO_DB}
+    volumes:
+      - mongo_data:/data/db
+    env_file:
+      - .env
+
+volumes:
+  postgres_data:
+  minio_data:
+  mongo_data:
