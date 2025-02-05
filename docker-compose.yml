@@ -1,11 +1,11 @@
-version: '3.8'
+version: "3.8"
 
 services:
   api:
     container_name: learn_anywhere
     ports:
       - "${API_PORT}:${API_PORT}"
-    build: 
+    build:
       context: ./
       dockerfile: Dockerfile
     environment:
@@ -19,6 +19,8 @@ services:
       - postgres
       - minio
       - mongo
+    networks:
+      - learn_anywhere_network
 
   postgres:
     image: postgres:latest
@@ -34,6 +36,22 @@ services:
       - postgres_data:/var/lib/postgresql/data
     env_file:
       - .env
+    networks:
+      - learn_anywhere_network
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin
+    restart: always
+    ports:
+      - "${PGADMIN_PORT}:80"
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
+    depends_on:
+      - postgres
+    networks:
+      - learn_anywhere_network
 
   minio:
     image: minio/minio:latest
@@ -50,6 +68,8 @@ services:
       - minio_data:/data
     env_file:
       - .env
+    networks:
+      - learn_anywhere_network
 
   mongo:
     image: mongo:latest
@@ -65,8 +85,13 @@ services:
       - mongo_data:/data/db
     env_file:
       - .env
+    networks:
+      - learn_anywhere_network
 
 volumes:
   postgres_data:
   minio_data:
   mongo_data:
+
+networks:
+  learn_anywhere_network:
