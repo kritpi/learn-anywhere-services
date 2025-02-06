@@ -25,6 +25,11 @@ type Config struct {
 	MINIO_BUCKET        string `mapstructure:"MINIO_BUCKET"`
 
 	// MongoDB
+	MONGO_PORT     string `mapstructure:"MONGO_PORT"`
+	MONGO_USER     string `mapstructure:"MONGO_USER"`
+	MONGO_PASSWORD string `mapstructure:"MONGO_PASSWORD"`
+	MONGO_DB       string `mapstructure:"MONGO_DB"`
+	MONGO_URL      string `mapstructure:"MONGO_URL"`
 }
 
 func NewConfig() *Config {

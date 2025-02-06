@@ -10,6 +10,8 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // MinIO Config for MinIO client and bucket details
@@ -68,4 +70,15 @@ func InitMinio(config *Config) (*MinioConfig, error) {
 		Bucket:   config.MINIO_BUCKET,
 		Endpoint: config.MINIO_ENDPOINT,
 	}, nil
+}
+
+func MongoInit(config *Config) (*mongo.Client, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	mongoClient, mongoErr := mongo.Connect(ctx, options.Client().ApplyURI(config.MONGO_URL))
+	if mongoErr != nil {
+		return nil, fmt.Errorf("failed to connect to MongoDB: %w", mongoErr)
+	}
+	log.Println("✅ MongoDB Connected!")
+	return mongoClient, nil
 }

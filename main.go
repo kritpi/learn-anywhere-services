@@ -22,7 +22,7 @@ func main() {
 	pgDb, pgErr := configs.InitDatabase(cfg)
 	if pgErr != nil {
 		log.Fatalf("⛔️ Failed to connect to Postgres: %v", pgErr)
-	}
+	}	
 	defer pgDb.Close()
 
 	minDb, minErr := configs.InitMinio(cfg)
@@ -30,6 +30,12 @@ func main() {
 		log.Fatalf("⛔️ Failed to connect to Minio: %v", minErr)
 	}
 	log.Printf("🚰 MinIO is ready! Bucket: %s, Endpoint: %s", minDb.Bucket, minDb.Endpoint)
+
+	mongoDB, mongoErr := configs.MongoInit(cfg)
+	if mongoErr != nil {
+		log.Fatalf("⛔️ Failed to connect to Mongo: %v", mongoErr)
+	}
+	log.Printf("🍃 Connect to MongoDB %s", mongoDB.Database("hihi").Name())
 
 	// Setup Fiber
 	app := fiber.New()
